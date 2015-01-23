@@ -847,6 +847,14 @@ static int qpnp_mpp_set(struct qpnp_led_data *led)
 	int duty_us;
 
 	if (led->cdev.brightness) {
+		if (led->mpp_cfg->pwm_mode != MANUAL_MODE) {
+			if (!led->mpp_cfg->pwm_cfg->blinking) {
+				led->mpp_cfg->pwm_cfg->mode =
+					led->mpp_cfg->pwm_cfg->default_mode;
+				led->mpp_cfg->pwm_mode =
+					led->mpp_cfg->pwm_cfg->default_mode;
+			}
+		}
 		if (led->mpp_cfg->mpp_reg && !led->mpp_cfg->enable) {
 			rc = regulator_set_voltage(led->mpp_cfg->mpp_reg,
 					led->mpp_cfg->min_uV,
@@ -1494,6 +1502,8 @@ static int qpnp_kpdbl_set(struct qpnp_led_data *led)
 		if (!num_kpbl_leds_on) {
 			rc = qpnp_led_masked_write(led, KPDBL_ENABLE(led->base),
 					KPDBL_MODULE_EN_MASK, KPDBL_MODULE_EN);
+ 		duty_us = (led->kpdbl_cfg->pwm_cfg->pwm_period_us *
+				led->cdev.brightness) / KPDBL_MAX_LEVEL;
 			if (rc) {
 				dev_err(&led->spmi_dev->dev,
 					"Enable reg write failed(%d)\n", rc);
@@ -1540,8 +1550,11 @@ static int qpnp_kpdbl_set(struct qpnp_led_data *led)
 				return rc;
 			}
 		} else
+ 		led->kpdbl_cfg->pwm_cfg->mode =
+			led->kpdbl_cfg->pwm_cfg->default_mode;
 			pwm_disable(led->kpdbl_cfg->pwm_cfg->pwm_dev);
-
+ 		rc = qpnp_led_masked_write(led, KPDBL_ENABLE(led->base),
+ 				KPDBL_MODULE_EN_MASK, KPDBL_MODULE_DIS);
 		if (num_kpbl_leds_on > 0)
 			num_kpbl_leds_on--;
 
