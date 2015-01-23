@@ -111,10 +111,6 @@
 				<86 512 500 800>;
 	};
 
-	pwmleds {
-		status = "disabled";
-	};
-
 	bluesleep {
 		compatible = "qcom,bluesleep";
 		bt_host_wake = <&msmgpio 67 0>;
@@ -182,6 +178,16 @@
 		qcom,out-strength = <2>;	/* Medium drive strength */
 		qcom,master-en = <1>;		/* Enable GPIO */
 	};
+
+	gpio@d000 { /* GPIO 17 */
+		qcom,mode = <1>;		/* Digital output */
+		qcom,output-type = <0>;		/* CMOS logic */
+		qcom,invert = <0>;		/* Output low initially */
+		qcom,vin-sel = <2>;		/* VIN 2 */
+		qcom,src-sel = <0>;		/* GPIO */
+		qcom,out-strength = <2>;	/* Medium */
+		qcom,master-en = <1>;		/* Enable GPIO */
+	};
 };
 
 &max17050 {
@@ -228,14 +234,27 @@
 			compatible = "qcom,leds-qpnp";
 			reg = <0xc600 0x100>;
 			status = "okay";
-			qcom,led_gpio_7 {
-				label = "gpio";
+			qcom,led_mpp_4 {
+				label = "mpp";
 				linux,name = "red";
-				qcom,max-current = <20>;
-				qcom,id = <8>;
-				qcom,source-sel = <1>;
-				qcom,mode-ctrl = <0x10>;
-				qcom,vin-ctrl = <0x02>;
+				linux,default-trigger = "battery-charging";
+				qcom,default-state = "off";
+				qcom,max-current = <40>;
+				qcom,current-setting = <5>;
+				qcom,id = <6>;
+				qcom,mode = "pwm";
+				qcom,pwm-us = <1000>;
+				qcom,source-sel = <8>;
+				qcom,mode-ctrl = <0x60>;
+				qcom,pwm-channel = <0>;
+				qcom,start-idx = <1>;
+				qcom,ramp-step-ms = <120>;
+				qcom,duty-pcts = [00 00 00 00 00
+						  00 00 00 00 00
+						  50 00 00 00 00
+						  00 00 00 00 00
+						  00];
+				qcom,use-blink;
 			};
 		};
 
@@ -243,14 +262,27 @@
 			compatible = "qcom,leds-qpnp";
 			reg = <0xc700 0x100>;
 			status = "okay";
-			qcom,led_gpio_8 {
-				label = "gpio";
+			qcom,led_mpp_6 {
+				label = "mpp";
 				linux,name = "green";
-				qcom,max-current = <20>;
-				qcom,id = <8>;
-				qcom,source-sel = <1>;
-				qcom,mode-ctrl = <0x10>;
-				qcom,vin-ctrl = <0x02>;
+				linux,default-trigger = "battery-full";
+				qcom,default-state = "off";
+				qcom,max-current = <40>;
+				qcom,current-setting = <5>;
+				qcom,id = <6>;
+				qcom,mode = "pwm";
+				qcom,pwm-us = <1000>;
+				qcom,mode-ctrl = <0x60>;
+				qcom,source-sel = <10>;
+				qcom,pwm-channel = <5>;
+				qcom,start-idx = <1>;
+				qcom,ramp-step-ms = <120>;
+				qcom,duty-pcts = [00 00 00 00 00
+						  00 00 00 00 00
+						  50 00 00 00 00
+						  00 00 00 00 00
+						  00];
+				qcom,use-blink;
 			};
 		};
 
@@ -258,18 +290,62 @@
 			compatible = "qcom,leds-qpnp";
 			reg = <0xc800 0x100>;
 			status = "okay";
-			qcom,led_gpio_9 {
-				label = "gpio";
-				linux,name = "blue";
-				qcom,max-current = <20>;
-				qcom,id = <8>;
-				qcom,source-sel = <1>;
-				qcom,mode-ctrl = <0x10>;
-				qcom,vin-ctrl = <0x02>;
+			qcom,led_mpp_6 {
+				label = "blue";
+				linux,name = "green";
+				linux,default-trigger = "notification";
+				qcom,default-state = "off";
+				qcom,max-current = <40>;
+				qcom,current-setting = <5>;
+				qcom,id = <6>;
+				qcom,mode = "pwm";
+				qcom,pwm-us = <1000>;
+				qcom,mode-ctrl = <0x60>;
+				qcom,source-sel = <10>;
+				qcom,pwm-channel = <5>;
+				qcom,start-idx = <1>;
+				qcom,ramp-step-ms = <120>;
+				qcom,duty-pcts = [00 00 00 00 00
+						  00 00 00 00 00
+						  50 00 00 00 00
+						  00 00 00 00 00
+						  00];
+				qcom,use-blink;
 			};
 		};
+
+	qcom,pm8226@1 {
+                qcom,leds@d300 {
+                        status = "okay";
+                };
+
+		qcom,leds@d800 {
+			status = "okay";
+			qcom,wled_0 {
+				label = "wled";
+				linux,name = "wled:backlight";
+				linux,default-trigger = "bkl-trigger";
+				qcom,cs-out-en;
+				qcom,op-fdbck = <1>;
+				qcom,default-state = "on";
+				qcom,max-current = <20>;
+				qcom,ctrl-delay-us = <0>;
+				qcom,boost-curr-lim = <3>;
+				qcom,cp-sel = <0>;
+				qcom,switch-freq = <11>;
+				qcom,ovp-val = <0>;
+				qcom,num-strings = <1>;
+				qcom,id = <0>;
+			};
+		};
+		qcom,vibrator@c000 {
+			status = "okay";
+			qcom,vib-timeout-ms = <15000>;
+			qcom,vib-vtg-level-mV = <3100>;
 	};
 };
+};
+}; 
 
 &pma8084_l18 {
 	regulator-always-on;
@@ -301,6 +377,7 @@
 
 &mdss_fb0 {
 	qcom,mdss-fb-split = <720 720>;
+	qcom,mdss-fb-rot-180;
 };
 
 &mdss_mdp {
@@ -520,6 +597,10 @@
 			&blsp1_uart6_default
 			&c55_ap_int_default
 			&c55_c55_int_default
+			&fps_miso_default
+			&fps_mosi_default
+			&fps_sleep_default
+			&fps_drdy_default
 			&blsp_i2c_default
 			&blsp_uart_default
 			&blsp_uart_weak_default

@@ -434,6 +434,10 @@
 	};
 
 	gpio@cd00 { /* GPIO 14 */
+		qcom,mode = <0>;
+		qcom,pull = <1>;
+		qcom,vin-sel = <2>;
+		qcom,src-sel = <0>;
 	};
 
 	gpio@ce00 { /* GPIO 15 */
@@ -448,6 +452,18 @@
 
 	gpio@cf00 { /* GPIO 16 */
 	};
+
+
+
+&i2c_0 {
+	smb350-charger@2b {
+		compatible = "summit,smb350-charger";
+		reg = <0x2b>; /* 0x56/0x57 */
+		interrupt-parent = <&spmi_bus>;
+		interrupts = <0x0 0xcd 0x0>;	/* PMA8084 GPIO 14 */
+		summit,term-current-ma = <300>;
+	};
+};
 
 	gpio@d000 { /* GPIO 17 */
 		qcom,mode = <1>;		/* Digital output */

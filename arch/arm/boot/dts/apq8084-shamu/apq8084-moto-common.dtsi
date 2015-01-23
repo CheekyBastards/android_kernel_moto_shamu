@@ -525,16 +525,38 @@
 		qcom,master-en = <1>;
 	};
 
-	gpio@c600 { /* GPIO 7 */
-		qcom,master-en = <0>;    /* Disable GPIO */
+	gpio@c600 { /* GPIO 7 RED LED */
+		qcom,mode = <1>;		/* Digital output */
+		qcom,output-type = <0>;		/* CMOS logic */
+		qcom,pull = <5>;		/* No Pull */
+		qcom,invert = <0>;		/* Do not invert the output */
+		qcom,vin-sel = <0>;		/* VIN 0*/
+		qcom,src-sel = <2>;		/* FUNC 1 */
+		qcom,out-strength = <2>;	/* Medium drive strength */
+		qcom,master-en = <1>;		/* Enable GPIO */
 	};
 
-	gpio@c700 { /* GPIO 8 */
-		qcom,master-en = <0>;    /* Disable GPIO */
+	gpio@c700 { /* GPIO 8 GREEN LED */
+		qcom,mode = <1>;		/* Digital output */
+		qcom,output-type = <0>;		/* CMOS logic */
+		qcom,pull = <5>;		/* No Pull */
+		qcom,invert = <0>;		/* Do not invert the output */
+		qcom,vin-sel = <0>;		/* VIN 0*/
+		qcom,src-sel = <2>;		/* FUNC 1 */
+		qcom,out-strength = <2>;	/* Medium drive strength */
+		qcom,master-en = <1>;		/* Enable GPIO */
 	};
 
-	gpio@c800 { /* GPIO 9 */
-		qcom,master-en = <0>;    /* Disable GPIO */
+	gpio@c800 { /* GPIO 9 BLUE LED */
+		qcom,mode = <1>;		/* Digital output */
+		qcom,output-type = <0>;		/* CMOS logic */
+		qcom,pull = <5>;		/* No Pull */
+		qcom,invert = <0>;		/* Do not invert the output */
+		qcom,vin-sel = <0>;		/* VIN 0*/
+		qcom,src-sel = <2>;		/* FUNC 1 */
+		qcom,out-strength = <2>;	/* Medium drive strength */
+		qcom,master-en = <1>;		/* Enable GPIO */
+
 	};
 
 	gpio@c900 { /* GPIO 10 */
@@ -1127,7 +1149,7 @@
 			qcom,led_mpp_8 {
 				label = "mpp";
 				linux,name = "charging";
-				linux-default-trigger = "none";
+				linux-default-trigger = "battery-full";
 				qcom,default-state = "off";
 				qcom,max-current = <40>;
 				qcom,current-setting = <5>;
