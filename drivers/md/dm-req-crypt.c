@@ -46,7 +46,7 @@
 
 #define DM_REQ_CRYPT_ERROR -1
 #define DM_REQ_CRYPT_ERROR_AFTER_PAGE_MALLOC -2
-#define FDE_CRYPTO_DEVICE 0
+
 
 struct req_crypt_result {
 	struct completion completion;
@@ -197,15 +197,10 @@ static void req_cryptd_crypt_read_convert(struct req_dm_crypt_io *io)
 	ablkcipher_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
 					req_crypt_cipher_complete, &result);
 	init_completion(&result.completion);
-	err = qcrypto_cipher_set_device(req, FDE_CRYPTO_DEVICE);
-	if (err != 0) {
-		DMERR("%s qcrypto_cipher_set_device failed with err %d\n",
-				__func__, err);
-		error = DM_REQ_CRYPT_ERROR;
-		goto ablkcipher_req_alloc_failure;
-	}
+#ifdef CONFIG_CRYPTO_HW
 	qcrypto_cipher_set_flag(req,
 		QCRYPTO_CTX_USE_PIPE_KEY | QCRYPTO_CTX_XTS_DU_SIZE_512B);
+#endif
 	crypto_ablkcipher_clear_flags(tfm, ~0);
 	crypto_ablkcipher_setkey(tfm, NULL, KEY_SIZE_XTS);
 
@@ -330,15 +325,10 @@ static void req_cryptd_crypt_write_convert(struct req_dm_crypt_io *io)
 				req_crypt_cipher_complete, &result);
 
 	init_completion(&result.completion);
-	error = qcrypto_cipher_set_device(req, FDE_CRYPTO_DEVICE);
-	if (error != 0) {
-		DMERR("%s qcrypto_cipher_set_device failed with error %d\n",
-				__func__, error);
-		error = DM_REQ_CRYPT_ERROR;
-		goto ablkcipher_req_alloc_failure;
-	}
+#ifdef CONFIG_CRYPTO_HW
 	qcrypto_cipher_set_flag(req,
 		QCRYPTO_CTX_USE_PIPE_KEY | QCRYPTO_CTX_XTS_DU_SIZE_512B);
+#endif
 	crypto_ablkcipher_clear_flags(tfm, ~0);
 	crypto_ablkcipher_setkey(tfm, NULL, KEY_SIZE_XTS);
 
@@ -588,12 +578,12 @@ static int req_crypt_map(struct dm_target *ti, struct request *clone,
 	int error = DM_REQ_CRYPT_ERROR, copy_bio_sector_to_req = 0;
 	struct bio *bio_src = NULL;
 
-	if ((rq_data_dir(clone) != READ) &&
+/*	if ((rq_data_dir(clone) != READ) &&
 			 (rq_data_dir(clone) != WRITE)) {
 		error = DM_REQ_CRYPT_ERROR;
 		DMERR("%s Unknown request\n", __func__);
 		goto submit_request;
-	}
+	}*/
 
 	req_io = mempool_alloc(req_io_pool, GFP_NOWAIT);
 	if (!req_io) {

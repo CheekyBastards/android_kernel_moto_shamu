@@ -84,6 +84,8 @@ void __init apq8084_add_drivers(void)
 	msm_thermal_device_init();
 }
 
+#define APQ8084_SHARED_RAM_PHYS     0x0FA00000
+
 static void __init apq8084_map_io(void)
 {
 	msm_map_8084_io();

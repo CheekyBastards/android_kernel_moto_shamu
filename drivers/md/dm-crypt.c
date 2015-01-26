@@ -27,7 +27,7 @@
 #include <crypto/hash.h>
 #include <crypto/md5.h>
 #include <crypto/algapi.h>
-
+#include <mach/qcrypto.h>
 #include <linux/device-mapper.h>
 
 #define DM_MSG_PREFIX "crypt"
